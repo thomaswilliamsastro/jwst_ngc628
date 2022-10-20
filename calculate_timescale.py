@@ -38,9 +38,9 @@ om = unp.uarray(tab['Vrot'].value[idx] / r_kpc.value[idx],
 
 om_p = ufloat(31.1, 3)
 
-thetas = [ufloat(40, 4),
-          ufloat(55, 6),
-]
+max_thetas = [40,
+              55,
+              ]
 
 labels = ['CO-rich', 'CO-poor']
 cs = ['b', 'r']
@@ -50,14 +50,17 @@ plot_name = os.path.join(plot_dir, 'timescales')
 plt.figure(figsize=(5, 4))
 ax = plt.subplot(1, 1, 1)
 
-for i, theta in enumerate(thetas):
+for i, max_theta in enumerate(max_thetas):
+
+    theta = max_theta * (r_kpc.value[idx] - 3)
+    theta = unp.uarray(theta, 5)
 
     t = theta / (0.576 * (om - om_p)) * 10
 
     plt.errorbar(r_kpc.value[idx], unp.nominal_values(t), yerr=unp.std_devs(t),
                  c=cs[i], marker='o', ls='none', label=labels[i])
 
-plt.ylim([20, 300])
+plt.ylim([0, 300])
 
 plt.legend(loc='upper left', fancybox=False)
 

@@ -160,7 +160,7 @@ def show_polar_plot(data, ax, cmap='viridis'):
     ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
     ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
 
-    plt.grid()
+    # plt.grid()
 
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -192,6 +192,13 @@ muse_file_name = os.path.join('data',
 
 environment_file_name = os.path.join('data', 'NGC0628_simple.fits')
 
+spur1_file_name = os.path.join('data',
+                               'spur1.fits',
+                               )
+spur2_file_name = os.path.join('data',
+                               'spur2.fits',
+                               )
+
 jwst_hdu = fits.open(jwst_file_name)
 jwst_data = jwst_hdu['SCI'].data
 jwst_hdr = jwst_hdu['SCI'].header
@@ -200,6 +207,8 @@ jwst_hdu.close()
 
 alma_hdu = fits.open(alma_file_name)
 muse_hdu = fits.open(muse_file_name)
+spur1_hdu = fits.open(spur1_file_name)
+spur2_hdu = fits.open(spur2_file_name)
 environment_hdu = fits.open(environment_file_name)
 
 co_data = reproject_interp(alma_hdu[0],
@@ -214,9 +223,19 @@ env_data = reproject_interp(environment_hdu[0],
                             return_footprint=False,
                             order='nearest-neighbor')
 
+spur1_reproj = reproject_interp(spur1_hdu[0],
+                                jwst_hdr,
+                                return_footprint=False)
+
+spur2_reproj = reproject_interp(spur2_hdu[0],
+                                jwst_hdr,
+                                return_footprint=False)
+
 alma_hdu.close()
 muse_hdu.close()
 environment_hdu.close()
+spur1_hdu.close()
+spur2_hdu.close()
 
 co_data_masked = copy.deepcopy(co_data)
 co_data_masked[env_data == 1] = np.nan
@@ -275,12 +294,24 @@ ha_data_polar, _, _, _ = stats.binned_statistic_2d(
 ha_data_polar_medsub = \
     ha_data_polar - np.nanmedian(ha_data_polar, axis=1, keepdims=True)
 
+mask = np.isfinite(spur1_reproj)
+spur1_polar, _, _, _ = stats.binned_statistic_2d(
+    r_kpc[mask], phi_deg[mask], spur1_reproj[mask],
+    statistic=np.nanmean, bins=(r_kpc_bins, phi_deg_bins))
+mask = np.isfinite(spur2_reproj)
+spur2_polar, _, _, _ = stats.binned_statistic_2d(
+    r_kpc[mask], phi_deg[mask], spur2_reproj[mask],
+    statistic=np.nanmean, bins=(r_kpc_bins, phi_deg_bins))
+
+spur1_mask = np.array(spur1_polar > 0.2, dtype=int)
+spur2_mask = np.array(spur2_polar > 0.5, dtype=int)
+
 ii, jj = np.meshgrid(phi_deg_centres,
                      r_kpc_centres)
 
 plot_name = os.path.join(plot_dir, 'polar_unwrap')
 
-plt.figure(figsize=(5, 10))
+plt.figure(figsize=(6.5, 10))
 
 ax = plt.subplot(3, 1, 1)
 show_polar_plot(co_data_polar_medsub, ax)
@@ -296,11 +327,22 @@ plt.text(0.95, 0.95,
 plt.plot([-180, 180], [5.6, 1], c='r')
 plt.plot([-180, 0], [2.8, 1], c='r')
 
-plt.arrow(63, 3.5, -6, 0,
-          width=0.1,
-          head_length=5,
-          color='red',
-          )
+# plt.arrow(63, 3.5, -6, 0,
+#           width=0.1,
+#           head_length=5,
+#           color='red',
+#           )
+plt.contour(ii, jj, spur1_mask,
+            levels=1,
+            colors='orange',
+            # lw=1,
+            )
+
+plt.contour(ii, jj, spur2_mask,
+            levels=1,
+            colors='cyan',
+            # lw=1,
+            )
 
 ax = plt.subplot(3, 1, 2)
 show_polar_plot(jwst_data_polar_medsub, ax)
@@ -315,11 +357,22 @@ show_polar_plot(jwst_data_polar_medsub, ax)
 plt.plot([-180, 180], [5.6, 1], c='r')
 plt.plot([-180, 0], [2.8, 1], c='r')
 
-plt.arrow(83, 3.5, -6, 0,
-          width=0.1,
-          head_length=5,
-          color='red',
-          )
+# plt.arrow(83, 3.5, -6, 0,
+#           width=0.1,
+#           head_length=5,
+#           color='red',
+#           )
+plt.contour(ii, jj, spur1_mask,
+            levels=1,
+            colors='orange',
+            # lw=1,
+            )
+
+plt.contour(ii, jj, spur2_mask,
+            levels=1,
+            colors='cyan',
+            # lw=1,
+            )
 
 plt.text(0.95, 0.95,
          r'JWST 21$\mu$m',
@@ -341,11 +394,22 @@ show_polar_plot(ha_data_polar_medsub, ax)
 plt.plot([-180, 180], [5.6, 1], c='r')
 plt.plot([-180, 0], [2.8, 1], c='r')
 
-plt.arrow(83, 3.5, -6, 0,
-          width=0.1,
-          head_length=5,
-          color='red',
-          )
+# plt.arrow(83, 3.5, -6, 0,
+#           width=0.1,
+#           head_length=5,
+#           color='red',
+#           )
+plt.contour(ii, jj, spur1_mask,
+            levels=1,
+            colors='orange',
+            # lw=1,
+            )
+
+plt.contour(ii, jj, spur2_mask,
+            levels=1,
+            colors='cyan',
+            # lw=1,
+            )
 
 plt.text(0.95, 0.95,
          r'MUSE H$\alpha$',

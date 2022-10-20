@@ -38,10 +38,17 @@ muse_file_name = os.path.join('data',
                               # 'ngc0628_mips24_image_v5-0.fits'
                               )
 
+spur1_file_name = os.path.join('data',
+                               'spur1.fits',
+                               )
+spur2_file_name = os.path.join('data',
+                               'spur2.fits',
+                               )
+
 environment_file_name = os.path.join('data', 'NGC0628_simple.fits')
 
 centre = SkyCoord(24.173855, 15.783643, unit=(u.deg, u.deg))
-pa = 20.
+pa = 20.7
 size = (0.04 * u.deg, 0.08 * u.deg)
 # size = (0.5 * u.deg, 0.5 * u.deg)
 
@@ -49,11 +56,11 @@ w = WCS(jwst_file_name)
 x_cen, y_cen = w.all_world2pix(centre.ra, centre.dec, 1)
 
 # Rotate (-5000, 0), (5000, 0) by the PA to plot on later
-x_pa = np.array([-5000, 5000], dtype=float)
-y_pa = np.array([np.abs(x_pa[0] / np.tan(np.radians(pa))), - x_pa[1] / np.tan(np.radians(pa))])
-
-x_pa += x_cen
-y_pa += y_cen
+# x_pa = np.array([-5000, 5000], dtype=float)
+# y_pa = np.array([np.abs(x_pa[0] / np.tan(np.radians(pa))), - x_pa[1] / np.tan(np.radians(pa))])
+#
+# x_pa += x_cen
+# y_pa += y_cen
 
 # We'll regrid everything to the JWST data
 jwst_hdu = fits.open(jwst_file_name)
@@ -65,6 +72,9 @@ alma_hdu = fits.open(alma_file_name)
 muse_hdu = fits.open(muse_file_name)
 
 environment_hdu = fits.open(environment_file_name)
+
+spur1_hdu = fits.open(spur1_file_name)
+spur2_hdu = fits.open(spur2_file_name)
 
 alma_reproj = reproject_interp(alma_hdu,
                                jwst_sci.header,
@@ -78,6 +88,15 @@ env_reproj = reproject_interp(environment_hdu[0],
                               jwst_sci.header,
                               return_footprint=False,
                               order='nearest-neighbor')
+
+spur1_reproj = reproject_interp(spur1_hdu[0],
+                                jwst_sci.header,
+                                return_footprint=False)
+
+spur2_reproj = reproject_interp(spur2_hdu[0],
+                                jwst_sci.header,
+                                return_footprint=False)
+
 env_reproj[env_reproj != 6] = np.nan
 env_reproj[env_reproj == 6] = 1
 
@@ -144,12 +163,35 @@ plt.contour(ii, jj, alma_fov,
             )
 
 # Plot on the position angle line
-plt.plot(x_pa, y_pa, c='white', lw=2)
+# plt.plot(x_pa, y_pa, c='white', lw=2)
+plt.plot([2700, 2700], [100, 300], c='white', lw=2)
+plt.plot([2700, 2700 - 200 * np.tan(np.radians(pa))], [100, 300], c='white', lw=2)
+plt.text(2900, 200, 'PA',
+         c='white',
+         ha='right', va='top',
+         bbox=dict(facecolor='black', edgecolor='black', alpha=1),
+         fontsize=18, fontweight='bold',
+         )
 
 plt.xlim(xlim)
 plt.ylim(ylim)
 
-# TODO Plot on the pointers to the spurs
+# Plot on spur contours
+
+spur1_mask = np.array(spur1_reproj > 0.2, dtype=int)
+spur2_mask = np.array(spur2_reproj > 0.5, dtype=int)
+
+plt.contour(ii, jj, spur1_mask,
+            levels=1,
+            colors='orange',
+            # lw=1,
+            )
+
+plt.contour(ii, jj, spur2_mask,
+            levels=1,
+            colors='cyan',
+            # lw=1,
+            )
 
 lon = ax.coords[0]
 lat = ax.coords[1]
@@ -172,26 +214,30 @@ plt.text(0.05, 0.95,
          c='r',
          ha='left', va='top',
          bbox=dict(facecolor='black', edgecolor='black', alpha=1),
+         fontsize=18, fontweight='bold',
          transform=ax.transAxes)
-plt.text(0.05, 0.92,
+plt.text(0.05, 0.90,
          r'MUSE H$\alpha$',
          c='g',
          ha='left', va='top',
          bbox=dict(facecolor='black', edgecolor='black', alpha=1),
+         fontsize=18, fontweight='bold',
          transform=ax.transAxes)
-plt.text(0.05, 0.89,
+plt.text(0.05, 0.85,
          r'ALMA CO',
          c='b',
          ha='left', va='top',
          bbox=dict(facecolor='black', edgecolor='black', alpha=1),
+         fontsize=18, fontweight='bold',
          transform=ax.transAxes)
 
 plt.text(0.95, 0.95,
-         'NGC 0628',
+         'NGC 628',
          c='white',
          ha='right', va='top',
          bbox=dict(facecolor='black', edgecolor='white', alpha=0.75),
-         transform=ax.transAxes
+         transform=ax.transAxes,
+         fontsize=18, fontweight='bold',
          )
 
 pix_scale = np.abs(jwst_hdu[0].header['CDELT1'])
@@ -332,6 +378,8 @@ plot_name = os.path.join(plot_dir, 'jwst_alma_zoom')
 jwst_hdu.close()
 alma_hdu.close()
 muse_hdu.close()
+spur1_hdu.close()
+spur2_hdu.close()
 environment_hdu.close()
 
 print('Complete!')
