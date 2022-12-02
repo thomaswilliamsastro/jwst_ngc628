@@ -14,7 +14,7 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 matplotlib.rcParams['font.size'] = 14
 
-os.chdir('/Users/williams/Documents/phangs/jwst_early_science')
+os.chdir('/Users/thomaswilliams/Documents/phangs/jwst_early_science')
 
 high_pass_jwst = True
 
@@ -158,7 +158,8 @@ plt.contour(ii, jj, muse_fov,
             )
 plt.contour(ii, jj, alma_fov,
             levels=1,
-            colors='blue',
+            # colors='blue',
+            colors='deepskyblue',
             alpha=0.5,
             )
 
@@ -213,22 +214,25 @@ plt.text(0.05, 0.95,
          r'MIRI 21$\mu$m',
          c='r',
          ha='left', va='top',
-         bbox=dict(facecolor='black', edgecolor='black', alpha=1),
-         fontsize=18, fontweight='bold',
+         bbox=dict(facecolor='white', edgecolor='black', alpha=0.75),
+         fontsize=18,
+         fontweight='bold',
          transform=ax.transAxes)
 plt.text(0.05, 0.90,
          r'MUSE H$\alpha$',
          c='g',
          ha='left', va='top',
-         bbox=dict(facecolor='black', edgecolor='black', alpha=1),
-         fontsize=18, fontweight='bold',
+         bbox=dict(facecolor='white', edgecolor='black', alpha=0.75),
+         fontsize=18,
+         fontweight='bold',
          transform=ax.transAxes)
 plt.text(0.05, 0.85,
          r'ALMA CO',
          c='b',
          ha='left', va='top',
-         bbox=dict(facecolor='black', edgecolor='black', alpha=1),
-         fontsize=18, fontweight='bold',
+         bbox=dict(facecolor='white', edgecolor='black', alpha=0.75),
+         fontsize=18,
+         fontweight='bold',
          transform=ax.transAxes)
 
 plt.text(0.95, 0.95,
@@ -275,8 +279,6 @@ plt.tight_layout()
 plt.savefig(plot_name + '.png', bbox_inches='tight')
 plt.savefig(plot_name + '.pdf', bbox_inches='tight')
 plt.close()
-
-# plt.show()
 
 plot_name = os.path.join(plot_dir, 'jwst_alma_zoom')
 

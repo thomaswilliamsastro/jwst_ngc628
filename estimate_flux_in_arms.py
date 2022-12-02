@@ -1,20 +1,15 @@
 import os
 
-import astropy.units as u
 import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
-from astropy.coordinates import SkyCoord
 from astropy.io import fits
-from astropy.wcs import WCS
-from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from reproject import reproject_interp
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 matplotlib.rcParams['font.size'] = 14
 
-os.chdir('/Users/williams/Documents/phangs/jwst_early_science')
+os.chdir('/Users/thomaswilliams/Documents/phangs/jwst_early_science')
 
 high_pass_jwst = True
 
@@ -39,6 +34,9 @@ environment_file_name = os.path.join('data', 'NGC0628_simple.fits')
 jwst_hdu = fits.open(jwst_file_name)
 jwst_sci = jwst_hdu[0]
 jwst_sci.data[jwst_sci.data == 0] = np.nan
+
+# Also mask out the central region
+jwst_sci.data[jwst_sci.data == 1] = np.nan
 
 environment_hdu = fits.open(environment_file_name)
 environment_data = environment_hdu[0]

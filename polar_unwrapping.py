@@ -167,7 +167,7 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 matplotlib.rcParams['font.size'] = 14
 
-os.chdir('/Users/williams/Documents/phangs/jwst_early_science')
+os.chdir('/Users/thomaswilliams/Documents/phangs/jwst_early_science')
 
 data_dir = 'data'
 plot_dir = 'plots'
@@ -316,6 +316,8 @@ plt.figure(figsize=(6.5, 10))
 ax = plt.subplot(3, 1, 1)
 show_polar_plot(co_data_polar_medsub, ax)
 
+plt.axhline(4.5, c='white', ls='--', lw=2)
+
 plt.text(0.95, 0.95,
          r'ALMA CO',
          ha='right', va='top',
@@ -326,6 +328,7 @@ plt.text(0.95, 0.95,
 # Plot on the spiral arms
 plt.plot([-180, 180], [5.6, 1], c='r')
 plt.plot([-180, 0], [2.8, 1], c='r')
+plt.plot([-45, 180], [6, 3], c='r')
 
 # plt.arrow(63, 3.5, -6, 0,
 #           width=0.1,
@@ -356,6 +359,7 @@ show_polar_plot(jwst_data_polar_medsub, ax)
 
 plt.plot([-180, 180], [5.6, 1], c='r')
 plt.plot([-180, 0], [2.8, 1], c='r')
+plt.plot([-45, 180], [6, 3], c='r')
 
 # plt.arrow(83, 3.5, -6, 0,
 #           width=0.1,
@@ -373,6 +377,8 @@ plt.contour(ii, jj, spur2_mask,
             colors='cyan',
             # lw=1,
             )
+
+plt.axhline(4.5, c='white', ls='--', lw=2)
 
 plt.text(0.95, 0.95,
          r'JWST 21$\mu$m',
@@ -393,6 +399,7 @@ show_polar_plot(ha_data_polar_medsub, ax)
 
 plt.plot([-180, 180], [5.6, 1], c='r')
 plt.plot([-180, 0], [2.8, 1], c='r')
+plt.plot([-45, 180], [6, 3], c='r')
 
 # plt.arrow(83, 3.5, -6, 0,
 #           width=0.1,
@@ -410,6 +417,8 @@ plt.contour(ii, jj, spur2_mask,
             colors='cyan',
             # lw=1,
             )
+
+plt.axhline(4.5, c='white', ls='--', lw=2)
 
 plt.text(0.95, 0.95,
          r'MUSE H$\alpha$',
